@@ -96,6 +96,7 @@ const generateRandomPassword = () => {
 
 // Método para enviar el correo electrónico
 const sendEmail = async (email, newPassword) => {
+  console.log(process.env.MAil);
   try {
     const transporter = nodemailer.createTransport({
       // Configuramos el correo
