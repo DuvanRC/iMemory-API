@@ -69,9 +69,6 @@ export const login = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-export const forget_password = async (req, res) => {
-=======
 // Método para generar una contraseña aleatoria
 const generateRandomPassword = () => {
   const characters =
@@ -121,7 +118,6 @@ const sendEmail = async (email, newPassword) => {
 };
 
 export const forgotPassword = async (req, res) => {
->>>>>>> 47f127d (iMemory v0.1)
   try {
     const { email } = req.body;
 
@@ -131,12 +127,21 @@ export const forgotPassword = async (req, res) => {
       return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
-    // Generar un token de acceso
-    // const accessToken = jwt.sign({ userId: user._id }, config.secretKey);
+    // Generar una nueva contraseña
+    const newPassword = generateRandomPassword();
 
-    // Enviar una respuesta al cliente
-    res.status(500).json({ message: "Ha ocurrido un error al iniciar sesión" });
-    // res.status(200).json({ accessToken });
+    // Actualizar la contraseña del usuario en la base de datos
+    await User.updateOne({ email }, { password: hashedPassword });
+
+    // Enviar la nueva contraseña por correo electrónico
+    await sendEmail(email, newPassword);
+
+    res
+      .status(200)
+      .json({
+        message:
+          "Se ha enviado una nueva contraseña al correo electrónico proporcionado",
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Ha ocurrido un error al iniciar sesión" });
