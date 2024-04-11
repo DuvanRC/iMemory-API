@@ -1,40 +1,48 @@
+import "dotenv/config";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import config from "../config.js";
-import User from "../models/userModel.js";
-require("dotenv").config();
+import db from "../firebase.js";
+import nodemailer from "nodemailer";
+
+async function findUserByEmail(email) {
+  const usersRef = db.collection("usuarios");
+  const snapshot = await usersRef.where("email", "==", email).limit(1).get();
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  let userData = null;
+  snapshot.forEach((doc) => {
+    userData = { id: doc.id, ...doc.data() };
+  });
+
+  return userData;
+}
 
 export const register = async (req, res) => {
   try {
-    const { name, lastName, email, password, department, city, address } =
-      req.body;
+    const { name, lastName, email, password, birthDate } = req.body;
 
-    // Verificar si ya existe un usuario con el mismo correo electrónico
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Verifica si el usuario ya existe
+    const existeUsuario = await findUserByEmail(email);
+    if (existeUsuario) {
       return res.status(400).json({
-        message: "Ya existe un usuario con el mismo correo electrónico",
+        message: "El email ya está registrado. Por favor, utiliza otro email.",
       });
     }
 
-    // Crear un nuevo usuario
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-      password: hashedPassword,
+    await db.collection("usuarios").add({
       name,
       lastName,
       email,
-      department,
-      city,
-      address,
+      password: hashedPassword,
+      birthDate,
     });
-    await newUser.save();
 
-    // Generar un token de acceso
-    const accessToken = jwt.sign({ userId: newUser._id }, config.secretKey);
-
-    // Enviar una respuesta al cliente
-    res.status(201).json({ accessToken });
+    res.send("Nuevo usuario creado");
   } catch (error) {
     console.error(error);
     res
@@ -47,31 +55,33 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Verificar si el correo electrónico y la contraseña son correctos
-    const user = await User.findOne({ email });
+    // Verificar si el correo electrónico existe
+    const user = await findUserByEmail(email);
     if (!user) {
       return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Credenciales inválidas" });
+    // Verificar si la contraseña es correcta
+    const contraseniaValida = await bcrypt.compare(password, user.password);
+    if (!contraseniaValida) {
+      res.status(401).json({ message: "Credenciales inválidas" });
     }
 
-    // Generar un token de acceso
-    const accessToken = jwt.sign({ userId: user._id }, config.secretKey);
+    // Generar un token de acceso. Asegúrate de tener una clave secreta para JWT
+    const accessToken = jwt.sign({ userId: user.id }, config.secretKey, {
+      expiresIn: "1h",
+    });
 
     // Enviar una respuesta al cliente
-    res.status(200).json({ accessToken });
+    return res.status(200).json({ accessToken });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Ha ocurrido un error al iniciar sesión" });
+    res
+      .status(500)
+      .json({ message: "Ha ocurrido un error al iniciar sesión (B)" });
   }
 };
 
-<<<<<<< HEAD
-export const forget_password = async (req, res) => {
-=======
 // Método para generar una contraseña aleatoria
 const generateRandomPassword = () => {
   const characters =
@@ -116,29 +126,42 @@ const sendEmail = async (email, newPassword) => {
 
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    throw new Error("Error al enviar el correo electrónico");
+    throw new Error("Error al enviar el correo electrónico" + error);
   }
 };
 
-export const forgotPassword = async (req, res) => {
->>>>>>> 47f127d (iMemory v0.1)
+export const recoverPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
     // Verificar si el correo electrónico y la contraseña son correctos
-    const user = await User.findOne({ email });
+    const user = await findUserByEmail(email);
     if (!user) {
       return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
-    // Generar un token de acceso
-    // const accessToken = jwt.sign({ userId: user._id }, config.secretKey);
+    // Generar una nueva contraseña
+    const newPassword = generateRandomPassword();
 
-    // Enviar una respuesta al cliente
-    res.status(500).json({ message: "Ha ocurrido un error al iniciar sesión" });
-    // res.status(200).json({ accessToken });
+    // Hash de la nueva contraseña
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Actualizar la contraseña del usuario en la base de datos
+    await db.collection("usuarios").doc(user.id).update({
+      password: hashedPassword,
+    });
+
+    // Enviar la nueva contraseña por correo electrónico
+    await sendEmail(email, newPassword);
+
+    res.status(200).json({
+      message:
+        "Se ha enviado una nueva contraseña al correo electrónico proporcionado",
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Ha ocurrido un error al iniciar sesión" });
+    res
+      .status(500)
+      .json({ message: "Ha ocurrido un error al recuperar contraseña (B)" });
   }
 };

@@ -1,27 +1,15 @@
 import express from "express";
-import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
+import morgan from "morgan";
+import routes from "./routes/index.js";
 
 const app = express();
+// app.use(morgan("dev"));
 
 // Configurar moddlewares
 app.use(express.json());
+// app.use(express.urlencoded({ extended: false }));
 
 // Configurar rutas
-app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
+app.use("/api", routes);
 
 export default app;
-
-// app.get("/test", (req, res) => {
-//   res.json({ message: "GET request successful" });
-// });
-
-// app.post("/test", (req, res) => {
-//   console.log(req.body);
-//   res.json({ message: "POST request received", data: req.body });
-// });
-
-// app.listen(port, () => {
-//   console.log(`Server running on http://localhost:${port}`);
-// });
