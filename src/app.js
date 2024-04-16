@@ -10,8 +10,6 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-console.log(path.resolve("./firebase.json"));
-
 // Configurar rutas
 app.use("/api", routes);
 

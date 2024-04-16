@@ -1,7 +1,6 @@
 import "dotenv/config";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import config from "../config.js";
 import db from "../firebase.js";
 import nodemailer from "nodemailer";
 
@@ -64,16 +63,17 @@ export const login = async (req, res) => {
     // Verificar si la contraseña es correcta
     const contraseniaValida = await bcrypt.compare(password, user.password);
     if (!contraseniaValida) {
-      res.status(401).json({ message: "Credenciales inválidas" });
+      return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
     // Generar un token de acceso. Asegúrate de tener una clave secreta para JWT
-    const accessToken = jwt.sign({ userId: user.id }, config.secretKey, {
-      expiresIn: "1h",
-    });
+    // const accessToken = jwt.sign({ userId: user.id }, config.secretKey, {
+    //   expiresIn: "1h",
+    // });
 
-    // Enviar una respuesta al cliente
-    return res.status(200).json({ accessToken });
+    // // Enviar una respuesta al cliente
+    // return res.status(200).json({ accessToken });
+    return res.status(200).json({ message: "Login correcto (B)" });
   } catch (error) {
     console.error(error);
     res
@@ -96,7 +96,6 @@ const generateRandomPassword = () => {
 
 // Método para enviar el correo electrónico
 const sendEmail = async (email, newPassword) => {
-  console.log(process.env.MAil);
   try {
     const transporter = nodemailer.createTransport({
       // Configuramos el correo
@@ -116,13 +115,19 @@ const sendEmail = async (email, newPassword) => {
       },
       to: email,
       subject: "Nueva contraseña generada iMemory",
-      html: `<div style="font-family: Arial, sans-serif; color: #333;">
-        <h2 style="color: #0056b3;">iMemory: Restablecimiento de Contraseña</h2>
-        <p>Hola,</p>
-        <p>Se ha generado una nueva contraseña para tu cuenta en iMemory.</p>
-        <p><strong>Tu nueva contraseña es:</strong> <span style="color: #d04a02;">${newPassword}</span></p>
-        <p><strong>Equipo de iMemory</strong></p>
-      </div>`,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2 style="color: #0056b3;">iMemory: Restablecimiento de Contraseña</h2>
+          <p>Hola,</p>
+          <p>Se ha generado una nueva contraseña para tu cuenta en iMemory.</p>
+          <p><strong>Tu nueva contraseña es:</strong> <span style="color: #d04a02;">${newPassword}</span></p>
+          <img src="ruta_de_la_imagen" alt="Imagen de iMemory" style="max-width: 100%; height: auto;">
+          <p style="margin-top: 20px;">Atentamente,</p>
+          <p>Equipo de iMemory</p>
+          <footer style="font-size: 12px; color: #666; margin-top: 20px;">
+            <p>Este correo ha sido enviado automáticamente. Por favor, no respondas a este mensaje.</p>
+          </footer>
+        </div>`,
     };
 
     await transporter.sendMail(mailOptions);
