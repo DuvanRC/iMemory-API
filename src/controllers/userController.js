@@ -1,12 +1,11 @@
-import User from "../models/userModel.js";
+// import User from "../models/userModel.js";
 
 export const getUsers = async (req, res) => {
   try {
     // Obtener todos los usuarios de la base de datos
-    const users = await User.find();
-
+    // const users = await User.find();
     // Enviar una respuesta al cliente
-    res.status(200).json(users);
+    // res.status(200).json(users);
   } catch (error) {
     console.error(error);
     res
@@ -20,13 +19,13 @@ export const getUserById = async (req, res) => {
     const { id } = req.params;
 
     // Buscar un usuario por su ID en la base de datos
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
+    // const user = await User.findById(id);
+    // if (!user) {
+    //   return res.status(404).json({ message: "Usuario no encontrado" });
+    // }
 
     // Enviar una respuesta al cliente
-    res.status(200).json(user);
+    // res.status(200).json(user);
   } catch (error) {
     console.error(error);
     res
@@ -41,18 +40,18 @@ export const updateUser = async (req, res) => {
     const { email, password } = req.body;
 
     // Buscar un usuario por su ID en la base de datos
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
+    // const user = await User.findById(id);
+    // if (!user) {
+    //   return res.status(404).json({ message: "Usuario no encontrado" });
+    // }
 
     // Actualizar el correo electrónico y la contraseña del usuario
-    if (email) user.email = email;
-    if (password) user.password = await bcrypt.hash(password, 10);
-    await user.save();
+    // if (email) user.email = email;
+    // if (password) user.password = await bcrypt.hash(password, 10);
+    // await user.save();
 
     // Enviar una respuesta al cliente
-    res.status(200).json(user);
+    // res.status(200).json(user);
   } catch (error) {
     console.error(error);
     res
@@ -66,16 +65,16 @@ export const deleteUser = async (req, res) => {
     const { id } = req.params;
 
     // Buscar un usuario por su ID en la base de datos
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
+    // const user = await User.findById(id);
+    // if (!user) {
+    //   return res.status(404).json({ message: "Usuario no encontrado" });
+    // }
 
     // Eliminar el usuario de la base de datos
-    await user.remove();
+    // await user.remove();
 
     // Enviar una respuesta al cliente
-    res.status(200).json(user);
+    // res.status(200).json(user);
   } catch (error) {
     console.error(error);
     res
