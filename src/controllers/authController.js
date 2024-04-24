@@ -115,19 +115,29 @@ const sendEmail = async (email, newPassword) => {
       },
       to: email,
       subject: "Nueva contraseña generada iMemory",
-      html: `
+      html: `<html lang=3D"en" xml:lang=3D"en">
+      <head>
+      <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type"/>
+      <link href=3D"https://fonts.googleapis.com/css?family=3DTitillium+Web" rel=3D"stylesheet"/>
+      <link href=3D"https://fonts.googleapis.com/css?family=3DTitillium+Web:700,700i,900" rel=3D"stylesheet"/>
+      </head>
+      <body>
         <div style="font-family: Arial, sans-serif; color: #333;">
           <h2 style="color: #0056b3;">iMemory: Restablecimiento de Contraseña</h2>
           <p>Hola,</p>
           <p>Se ha generado una nueva contraseña para tu cuenta en iMemory.</p>
-          <p><strong>Tu nueva contraseña es:</strong> <span style="color: #d04a02;">${newPassword}</span></p>
-          <img src="ruta_de_la_imagen" alt="Imagen de iMemory" style="max-width: 100%; height: auto;">
+          <p style="font-size: 18px;"><strong>Tu nueva contraseña es:</strong></p>
+          <p style="font-size: 32px; font-weight: bold; color: #d04a02; margin-bottom: 20px;"><span style="user-select: all;">${newPassword}</span></p>
+          <div align=3D"center" style=3D"padding:0px; font-family:'Titillium Web',Helvetica, sans-serif; color:#ffffff;">
+          <span class=3D"button" style=3D"width:60%;max-width:630px;background-color:#cc001d;border:none;color:white;padding:10px 0;text-align:center;text-decoration:none;display:inline-block;font-size:18px;font-weight:400;letter-spacing:0.7px;" type=3D"button">
+          ${newPassword}</span></div>
+          <img src="https://i.ibb.co/p3dLtSx/logo.jpg" alt="iMemory APP" style="max-width: 100%; height: auto; width: 200px;">
           <p style="margin-top: 20px;">Atentamente,</p>
           <p>Equipo de iMemory</p>
           <footer style="font-size: 12px; color: #666; margin-top: 20px;">
             <p>Este correo ha sido enviado automáticamente. Por favor, no respondas a este mensaje.</p>
           </footer>
-        </div>`,
+        </div></body></html>`,
     };
 
     await transporter.sendMail(mailOptions);
@@ -160,7 +170,7 @@ export const recoverPassword = async (req, res) => {
     // Enviar la nueva contraseña por correo electrónico
     await sendEmail(email, newPassword);
 
-    res.status(200).json({
+    return res.status(200).json({
       message:
         "Se ha enviado una nueva contraseña al correo electrónico proporcionado",
     });
