@@ -1,15 +1,19 @@
-import db from "../firebase.js";
+import { db } from "../firebase.js";
 import crypto from "crypto";
 
 async function añadirRegistros() {
   const registrosRef = db.collection("razonamiento_facil");
 
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 1; i++) {
     const nombre = `suma10+${i}`;
     const respuesta = i + 10;
 
+    //   Generamos un número aleatorio criptográfico
+    const randomBytes = crypto.randomBytes(4);
+    const randomValue = randomBytes.readUInt32BE(0, true) / 4294967295;
+
     // Crea el objeto del documento a añadir
-    const docData = { nombre, respuesta };
+    const docData = { nombre, respuesta, randomField: randomValue };
 
     // Añade el documento a Firebase
     try {

@@ -1,4 +1,4 @@
-import db from "../firebase.js";
+import { db } from "../firebase.js";
 import crypto from "crypto";
 
 export async function razonamientoFacil(req, res) {
@@ -9,7 +9,7 @@ export async function razonamientoFacil(req, res) {
     const randomBytes = crypto.randomBytes(4);
     const randomSeed = randomBytes.readUInt32BE(0, true) / 4294967295;
 
-    // Obtener 10 juegos medio aletariamente
+    // Obtener 10 juegos facil aletariamente
     const querySnapshot = await coleccionRef
       .orderBy("randomField")
       .startAt(randomSeed)

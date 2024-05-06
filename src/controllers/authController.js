@@ -1,7 +1,7 @@
 import "dotenv/config";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import db from "../firebase.js";
+import { db } from "../firebase.js";
 import nodemailer from "nodemailer";
 
 async function findUserByEmail(email) {
