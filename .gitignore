@@ -1,6 +1,5 @@
 node_modules
-# firebase.json
 dist
 .env
-
+firebase.json
 .vscode
