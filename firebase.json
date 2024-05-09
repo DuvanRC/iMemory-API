@@ -1,18 +1,4 @@
 {
-<<<<<<< HEAD
-    "type": "service_account",
-    "project_id": "imemory-26b59",
-    "private_key_id": "407bbb976a8a37336243c8fa5b8818cc422aefcd",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDI6RMy7ZBsFcdd\nhkMh3gseiEVwWlvBI/Xa2qO0oMgt6pD0IXAkXBwMOB9OVe/znfYJBRgGAKPcuWU2\nphUKf7Pn+ROMDBtPWvIS/AdGNMiiztyCIUKVWICctMsuv231eA3U2A4YAPUfygWQ\nP4zeWLqEjLwAr5IAzRru2NOA8F4U9HtXrM7T861uIVNdFIBBEayRoRMTXnz+n1Px\nefnzqn7q2+28l6KF0810dwMG+1wKVb6UDour6qFT5ibF2LnexUiXbFe3Yp4tV32L\n9JgECnqZvaXObBH2nELqFkch+956w3leG+WG/GzLlEC0CwXWbPiPNyj+NNqOtRsn\nwReF16fbAgMBAAECggEAOQsQI+wWjtGqLtAxnFqOfqdDS/Cjz5U1t2NPirgBziOk\n72PVEsXCQufmX5f/zoQheJMlLIMfA0ryRU9ndvkmK+1o0uEXGfNg+unq6NCQzMT+\nD8aAwKWFsriUXdwFTOY+yxli+wa+kj2KUdfxV6oKnxrUQD+ZLTgO9xTCDIByvfDh\nZtFPaz35g2Aa5H+6hjy5JoMiQzfi5D/a5nGxLyUo9abvB7UUzh505fb18CWYeTAd\nkVGggQty0RaL7mBpdi2PPSggG/+XIiOR8eTk3ZHSUzk51UqWyts9UH+N62IdpITR\niJB+dQUNibHgWxBn75/3jRsety4vm2PUoLzi/KpctQKBgQDurCRZ9Jit0Dn+AWu4\nmXUuDUpYYthf0Egur3+45yVUOtYXrrjAfAbHIrkrh7Y+2vT0+9pnlOYSxRgCHXTs\nv3/hOU0a+jPofqO4KuGm9fYRD9/g4URh612NqflsJjKQTy/+9Ac5m/IvrZjV3GAk\nk17kpKnPR5e4/Xqw9wubu/DOLwKBgQDXfxsbBNqkBpQ2IE5bF3dpTlCDh4CvW1UL\nn2Y15LwIIyEyti7kTjqiMoNZ9/lxpdNPwWtt9CRmwztIx7nBhCFDT+e07R58wYiz\nZetCogeQV5EU+7uK574FbZyjzS5WCbKjm2xNWmHqwIhkz3iYRqBiOaMVX63UScVC\nXDfSnvOiFQKBgCKEVsWDsEkC4kAv6GpMFzxPw77AnNZOgwHtc6VEGIvz7l6CcEm2\nJizKgske2WaBuAduHQn56MQyKOS1aeGLWG00IkiSgstO9VJ/MR86Vxnkl9Yn/gHD\nTkZcnKvdYlaofSJ8HEdinEX07zOOqYDgp0qd3ckSa4jfb80EDXO6XHsVAoGAeM3N\nYSkodFknzuvvYQtXqpX3drSIhEU7+McD4mR2sE0ZODd/NAdSwUh18AKeOIKQYh54\n3evGWEFLw7ILRRuQFg7+QqPGuoM34fHZn8H7YYRlVZEFAoqFML/Q1taYCi1nkmX3\noalwSMxj6beQ0DSPhmDvNnUrml08ksXlmVH4HD0CgYEAsbomlSjGe0jwzU67K4BX\nx4PuRmC82XRJn6SVk9JgmlKOlgPzm28/DQQGAuMxxwxOoiF7XX3hMf0hWNKJTx3w\nozpzyXNkKU0cgfaDrynOIRTDwhHJKT+VfsVwcNi9mycKtS7NKGDuIY8QX2ix7t7W\nZNoXIwFel9hzfBp3fdQoaiI=\n-----END PRIVATE KEY-----\n",
-    "client_email": "firebase-adminsdk-x6v7y@imemory-26b59.iam.gserviceaccount.com",
-    "client_id": "115402951373919185026",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-x6v7y%40imemory-26b59.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-  }
-=======
   "type": "service_account",
   "project_id": "imemory-26b59",
   "private_key_id": "407bbb976a8a37336243c8fa5b8818cc422aefcd",
@@ -25,4 +11,3 @@
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-x6v7y%40imemory-26b59.iam.gserviceaccount.com",
   "universe_domain": "googleapis.com"
 }
->>>>>>> 3a99aa73dee46038ff66c414446b03c7bc3b61fc
