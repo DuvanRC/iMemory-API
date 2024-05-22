@@ -6,7 +6,7 @@ import razonamientoRoutes from "./razonamientoRoutes.js";
 const app = express();
 
 app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
+app.use("/usuarios", userRoutes);
 app.use("/razonamiento", razonamientoRoutes);
 
 export default app;
