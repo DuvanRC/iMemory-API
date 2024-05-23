@@ -12,6 +12,9 @@ export async function listarUsuarios(req, res) {
     const usuarios = [];
     snapshot.forEach((doc) => {
       const data = doc.data();
+      if (data.email === process.env.MAIL) {
+        return;
+      }
       usuarios.push({
         nombre: data.name + " " + data.lastName,
         correo: data.email,
