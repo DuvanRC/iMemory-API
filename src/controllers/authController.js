@@ -39,6 +39,8 @@ export const register = async (req, res) => {
       email,
       password: hashedPassword,
       birthDate,
+      rol: 2,
+      estado: 1,
     });
 
     res.send("Nuevo usuario creado");
@@ -50,7 +52,7 @@ export const register = async (req, res) => {
   }
 };
 
-export const login = async (req, res) => {
+export async function login(req, res) {
   try {
     const { email, password } = req.body;
 
@@ -73,14 +75,17 @@ export const login = async (req, res) => {
 
     // // Enviar una respuesta al cliente
     // return res.status(200).json({ accessToken });
-    return res.status(200).json({ message: "Login correcto (B)" });
+    if (user.rol == 1) {
+      return res.status(210).send(email);
+    }
+    return res.status(200).send(email);
   } catch (error) {
     console.error(error);
     res
       .status(500)
       .json({ message: "Ha ocurrido un error al iniciar sesión (B)" });
   }
-};
+}
 
 // Método para generar una contraseña aleatoria
 const generateRandomPassword = () => {
@@ -173,3 +178,25 @@ export const recoverPassword = async (req, res) => {
       .json({ message: "Ha ocurrido un error al recuperar contraseña (B)" });
   }
 };
+
+export async function cambiarContrasenia(req, res) {
+  try {
+    const { correo, password } = req.body;
+    const user = await findUserByEmail(correo);
+    if (!user) {
+      return res.status(400).json({ message: "No existe correo" });
+    }
+
+    // Hash de la nueva contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Actualizar la contraseña del usuario en la base de datos
+    await db.collection("usuarios").doc(user.id).update({
+      password: hashedPassword,
+    });
+    res.status(200).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error cambio de contraseña" });
+  }
+}
