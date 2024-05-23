@@ -3,6 +3,7 @@ import {
   register,
   login,
   recoverPassword,
+  cambiarContrasenia,
 } from "../controllers/authController.js";
 
 const router = Router();
@@ -11,5 +12,6 @@ const router = Router();
 router.post("/register", register);
 router.post("/login", login);
 router.post("/recover-password", recoverPassword);
+router.post("/cambiar-contrasenia", cambiarContrasenia);
 
 export default router;
