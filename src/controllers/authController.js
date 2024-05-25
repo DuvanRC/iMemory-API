@@ -22,7 +22,8 @@ async function findUserByEmail(email) {
 
 export const register = async (req, res) => {
   try {
-    const { name, lastName, email, password, birthDate } = req.body;
+    const { name, lastName, email, password, birthDate, correoCuidador } =
+      req.body;
 
     // Verifica si el usuario ya existe
     const existeUsuario = await findUserByEmail(email);
@@ -39,6 +40,7 @@ export const register = async (req, res) => {
       email,
       password: hashedPassword,
       birthDate,
+      correoCuidador,
       rol: 2,
       estado: 1,
     });
