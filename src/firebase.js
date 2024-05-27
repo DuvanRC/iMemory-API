@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { cert, initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import errorhandler from "errorhandler";
 
 const {
@@ -36,4 +36,4 @@ const initializeFirebaseApp = () => {
   }
 };
 
-export { db, initializeFirebaseApp };
+export { db, initializeFirebaseApp, Timestamp };

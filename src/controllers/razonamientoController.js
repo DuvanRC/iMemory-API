@@ -1,5 +1,4 @@
 import { db } from "../firebase.js";
-import crypto from "crypto";
 
 export async function razonamientoBasico(req, res) {
   try {
@@ -29,8 +28,6 @@ export async function razonamientoBasico(req, res) {
     }
 
     res.json(datosAleatorios);
-
-    // res.json(resultados);
   } catch (error) {
     console.error("Error al obtener datos aleatorios:", error);
     res.status(500).send("Error al obtener datos aleatorios");
