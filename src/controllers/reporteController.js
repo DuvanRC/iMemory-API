@@ -299,7 +299,6 @@ export async function generarReporte(req, res) {
         res.status(200).send("Correo enviado correctamente");
       });
     });
-    console.log(user.name);
     // Agregar contenido al PDF
     doc.fontSize(25).text("Reporte de Usuario", { align: "center" });
     doc.moveDown();
@@ -339,6 +338,10 @@ export async function generarReporteSemanal(req, res) {
     const collectionsToFetch = [
       "avance_razonamiento_basico",
       "avance_razonamiento_avanzado",
+      "avance_memoria_basico",
+      "avance_memoria_avanzado",
+      "avance_lenguaje_basico",
+      "avance_lenguaje_avanzado",
     ];
     const dataPromises = collectionsToFetch.map((collection) =>
       usersRef
@@ -356,6 +359,7 @@ export async function generarReporteSemanal(req, res) {
       if (!snapshot.empty) {
         let totalCorrecto = 0;
         let totalIncorrecto = 0;
+        let totalIntentos = 0;
         let totalTiempo = 0;
         let count = 0;
         let fechaInicial = null;
@@ -364,12 +368,17 @@ export async function generarReporteSemanal(req, res) {
         snapshot.docs.forEach((doc) => {
           const data = doc.data();
           const fechaRegistro = data.fechaRegistro.toDate();
-          const correcto = data.correctas || 0;
-          const incorrecto = data.incorrectas || 0;
-          const tiempo = data.tiempo || 0;
+          if (data.correctas) {
+            const correcto = parseInt(data.correctas) || 0;
+            const incorrecto = parseInt(data.incorrectas) || 0;
 
-          totalCorrecto += correcto;
-          totalIncorrecto += incorrecto;
+            totalCorrecto += correcto;
+            totalIncorrecto += incorrecto;
+          } else {
+            const intentos = parseInt(data.intentos) || 0;
+            totalIntentos += intentos;
+          }
+          const tiempo = parseInt(data.tiempo) || 0;
           totalTiempo += tiempo;
           count += 1;
 
@@ -380,21 +389,35 @@ export async function generarReporteSemanal(req, res) {
             fechaFinal = fechaRegistro;
           }
         });
-
-        const promedioCorrecto = count ? (totalCorrecto / count).toFixed(2) : 0;
-        const promedioIncorrecto = count
-          ? (totalIncorrecto / count).toFixed(2)
-          : 0;
-        const promedioTiempo = count ? (totalTiempo / count).toFixed(2) : 0;
-
-        acc[collectionName] = {
-          promedioCorrecto,
-          promedioIncorrecto,
-          promedioTiempo,
-          fechaInicial,
-          fechaFinal,
-          // data: snapshot.docs.map((doc) => doc.data()),
-        };
+        const promedioTiempo = count ? (totalTiempo / count).toFixed(1) : 0;
+        if (
+          collectionName == "avance_memoria_basico" ||
+          collectionName == "avance_memoria_avanzado"
+        ) {
+          const promedioIntentos = count
+            ? (totalIntentos / count).toFixed(1)
+            : 0;
+          acc[collectionName] = {
+            promedioIntentos,
+            promedioTiempo,
+            fechaInicial,
+            fechaFinal,
+            // data: snapshot.docs.map((doc) => doc.data()),
+          };
+        } else {
+          const promedioCorrecto = count ? totalCorrecto / count.toFixed(1) : 0;
+          const promedioIncorrecto = count
+            ? (totalIncorrecto / count).toFixed(1)
+            : 0;
+          acc[collectionName] = {
+            promedioCorrecto,
+            promedioIncorrecto,
+            promedioTiempo,
+            fechaInicial,
+            fechaFinal,
+            // data: snapshot.docs.map((doc) => doc.data()),
+          };
+        }
       } else {
         acc[collectionName] = {
           promedioCorrecto: 0,
@@ -402,7 +425,7 @@ export async function generarReporteSemanal(req, res) {
           promedioTiempo: 0,
           fechaInicial: null,
           fechaFinal: null,
-          data: [],
+          // data: [],
         };
       }
       return acc;
