@@ -1,8 +1,10 @@
-import "dotenv/config";
+// import "dotenv/config";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { db } from "../firebase.js";
-import nodemailer from "nodemailer";
+import transporter from "../config/correoConfig.js";
+import crypto from "crypto";
+import validator from "validator";
 
 async function findUserByEmail(email) {
   const usersRef = db.collection("usuarios");
@@ -20,15 +22,30 @@ async function findUserByEmail(email) {
   return userData;
 }
 
-export const register = async (req, res) => {
+export async function register(req, res) {
   try {
     const { name, lastName, email, password, birthDate, correoCuidador } =
       req.body;
 
+    // Validación de correos electrónicos
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({
+        message:
+          "El correo proporcionado no es válido. Por favor, introduce un correo válido.",
+      });
+    }
+
+    if (correoCuidador && !validator.isEmail(correoCuidador)) {
+      return res.status(401).json({
+        message:
+          "El correo del cuidador proporcionado no es válido. Por favor, introduce un correo válido.",
+      });
+    }
+
     // Verifica si el usuario ya existe
     const existeUsuario = await findUserByEmail(email);
     if (existeUsuario) {
-      return res.status(400).json({
+      return res.status(402).json({
         message: "El email ya está registrado. Por favor, utiliza otro email.",
       });
     }
@@ -52,7 +69,7 @@ export const register = async (req, res) => {
       .status(500)
       .json({ message: "Ha ocurrido un error al registrar el usuario" });
   }
-};
+}
 
 export async function login(req, res) {
   try {
@@ -70,13 +87,6 @@ export async function login(req, res) {
       return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
-    // Generar un token de acceso. Asegúrate de tener una clave secreta para JWT
-    // const accessToken = jwt.sign({ userId: user.id }, config.secretKey, {
-    //   expiresIn: "1h",
-    // });
-
-    // // Enviar una respuesta al cliente
-    // return res.status(200).json({ accessToken });
     if (user.rol == 1) {
       return res.status(210).send(email);
     }
@@ -90,32 +100,44 @@ export async function login(req, res) {
 }
 
 // Método para generar una contraseña aleatoria
-const generateRandomPassword = () => {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let password = "";
-  for (let i = 0; i < 10; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    password += characters[randomIndex];
+function generarContrasenia(length = 10) {
+  const upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
+  const numbers = "0123456789";
+  const allCharacters = upperCaseLetters + lowerCaseLetters + numbers;
+
+  const passwordArray = [];
+
+  // Asegurar al menos un carácter de cada tipo
+  passwordArray.push(upperCaseLetters[getRandomInt(upperCaseLetters.length)]);
+  passwordArray.push(lowerCaseLetters[getRandomInt(lowerCaseLetters.length)]);
+  passwordArray.push(numbers[getRandomInt(numbers.length)]);
+
+  // Rellenar el resto de la contraseña
+  for (let i = 3; i < length; i++) {
+    passwordArray.push(allCharacters[getRandomInt(allCharacters.length)]);
   }
-  return password;
-};
+
+  // Mezclar los caracteres para asegurar aleatoriedad
+  return shuffleArray(passwordArray).join("");
+}
+
+function getRandomInt(max) {
+  return crypto.randomInt(0, max);
+}
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(crypto.randomInt(0, i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
 // Método para enviar el correo electrónico
 const sendEmail = async (email, newPassword) => {
   try {
-    const transporter = nodemailer.createTransport({
-      // Configuramos el correo
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.MAIL,
-        pass: process.env.PASSWORD,
-      },
-    });
-
-    const mailOptions = {
+    const detallesCorreo = {
       from: {
         name: "iMemory APP",
         address: process.env.MAIL,
@@ -139,7 +161,7 @@ const sendEmail = async (email, newPassword) => {
         </div></body>`,
     };
 
-    await transporter.sendMail(mailOptions);
+    await transporter.sendMail(detallesCorreo);
   } catch (error) {
     throw new Error("Error al enviar el correo electrónico" + error);
   }
@@ -156,7 +178,7 @@ export const recoverPassword = async (req, res) => {
     }
 
     // Generar una nueva contraseña
-    const newPassword = generateRandomPassword();
+    const newPassword = generarContrasenia();
 
     // Hash de la nueva contraseña
     const hashedPassword = await bcrypt.hash(newPassword, 10);

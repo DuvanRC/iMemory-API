@@ -1,6 +1,23 @@
 import { db, Timestamp } from "../firebase.js";
 import PDFDocument from "pdfkit";
-import nodemailer from "nodemailer";
+import transporter from "../config/correoConfig.js";
+
+async function obtenerIdUsuario(correo) {
+  const userSnapshot = await db
+    .collection("usuarios")
+    .where("email", "==", correo)
+    .get();
+
+  if (userSnapshot.empty) {
+    return null;
+  }
+
+  let userId;
+  userSnapshot.forEach((doc) => {
+    userId = doc.id;
+  });
+  return userId;
+}
 
 export async function guardarRazonamientoBasico(req, res) {
   let { correo, correctas, incorrectas, tiempo } = req.body;
@@ -19,23 +36,14 @@ export async function guardarRazonamientoBasico(req, res) {
   }
 
   try {
-    const userSnapshot = await db
-      .collection("usuarios")
-      .where("email", "==", correo)
-      .get();
-
-    if (userSnapshot.empty) {
-      return res.status(404).send("Usuario no encontrado");
+    const idUsuario = await obtenerIdUsuario(correo);
+    if (!idUsuario) {
+      return res.status(401).json({ message: "Usuario no encontrado" });
     }
-
-    let userId;
-    userSnapshot.forEach((doc) => {
-      userId = doc.id;
-    });
 
     let fechaRegistro = Timestamp.now();
 
-    const userRef = db.collection("usuarios").doc(userId);
+    const userRef = db.collection("usuarios").doc(idUsuario);
     const statsRef = userRef.collection("avance_razonamiento_basico").doc();
     await statsRef.set({
       correctas,
@@ -68,23 +76,14 @@ export async function guardarRazonamientoAvanzado(req, res) {
   }
 
   try {
-    const userSnapshot = await db
-      .collection("usuarios")
-      .where("email", "==", correo)
-      .get();
-
-    if (userSnapshot.empty) {
-      return res.status(404).send("Usuario no encontrado");
+    const idUsuario = await obtenerIdUsuario(correo);
+    if (!idUsuario) {
+      return res.status(401).json({ message: "Usuario no encontrado" });
     }
-
-    let userId;
-    userSnapshot.forEach((doc) => {
-      userId = doc.id;
-    });
 
     let fechaRegistro = Timestamp.now();
 
-    const userRef = db.collection("usuarios").doc(userId);
+    const userRef = db.collection("usuarios").doc(idUsuario);
     const statsRef = userRef.collection("avance_razonamiento_avanzado").doc();
     await statsRef.set({
       correctas,
@@ -96,6 +95,152 @@ export async function guardarRazonamientoAvanzado(req, res) {
     res
       .status(200)
       .send("Avances almacenados correctamente a razonamiento Avanzado");
+  } catch (error) {
+    console.error("Error actualizando el usuario:", error);
+    res.status(500).send("Error interno del servidor");
+  }
+}
+
+export async function guardarMemoriaBasico(req, res) {
+  let { correo, intentos, tiempo } = req.body;
+
+  if (!correo || intentos === undefined || tiempo === undefined) {
+    return res
+      .status(400)
+      .send("Todos los campos son necesarios: correo, intentos, tiempo");
+  }
+
+  try {
+    const idUsuario = await obtenerIdUsuario(correo);
+    if (!idUsuario) {
+      return res.status(401).json({ message: "Usuario no encontrado" });
+    }
+
+    let fechaRegistro = Timestamp.now();
+
+    const userRef = db.collection("usuarios").doc(idUsuario);
+    const statsRef = userRef.collection("avance_memoria_basico").doc();
+    await statsRef.set({
+      intentos,
+      tiempo,
+      fechaRegistro,
+    });
+
+    res.status(200).send("Avance subido correctamente");
+  } catch (error) {
+    console.error("Error actualizando el usuario:", error);
+    res.status(500).send("Error interno del servidor");
+  }
+}
+
+export async function guardarMemoriaAvanzado(req, res) {
+  let { correo, intentos, tiempo } = req.body;
+
+  if (!correo || intentos === undefined || tiempo === undefined) {
+    return res
+      .status(400)
+      .send("Todos los campos son necesarios: correo, intentos, tiempo");
+  }
+
+  try {
+    const idUsuario = await obtenerIdUsuario(correo);
+    if (!idUsuario) {
+      return res.status(401).json({ message: "Usuario no encontrado" });
+    }
+
+    let fechaRegistro = Timestamp.now();
+
+    const userRef = db.collection("usuarios").doc(idUsuario);
+    const statsRef = userRef.collection("avance_memoria_avanzado").doc();
+    await statsRef.set({
+      intentos,
+      tiempo,
+      fechaRegistro,
+    });
+
+    res.status(200).send("Avance subido correctamente");
+  } catch (error) {
+    console.error("Error actualizando el usuario:", error);
+    res.status(500).send("Error interno del servidor");
+  }
+}
+
+export async function guardarLenguajeBasico(req, res) {
+  let { correo, correctas, incorrectas, tiempo } = req.body;
+
+  if (
+    !correo ||
+    correctas === undefined ||
+    incorrectas === undefined ||
+    tiempo === undefined
+  ) {
+    return res
+      .status(400)
+      .send(
+        "Todos los campos son necesarios: correo, correctas, incorrectas, tiempo"
+      );
+  }
+
+  try {
+    const idUsuario = await obtenerIdUsuario(correo);
+    if (!idUsuario) {
+      return res.status(401).json({ message: "Usuario no encontrado" });
+    }
+
+    let fechaRegistro = Timestamp.now();
+
+    const userRef = db.collection("usuarios").doc(idUsuario);
+    const statsRef = userRef.collection("avance_lenguaje_basico").doc();
+    await statsRef.set({
+      correctas,
+      incorrectas,
+      tiempo,
+      fechaRegistro,
+    });
+
+    res.status(200).send("Avancez almacenados correctamente a Lenguaje Básico");
+  } catch (error) {
+    console.error("Error actualizando el usuario:", error);
+    res.status(500).send("Error interno del servidor");
+  }
+}
+
+export async function guardarLenguajeAvanzado(req, res) {
+  let { correo, correctas, incorrectas, tiempo } = req.body;
+
+  if (
+    !correo ||
+    correctas === undefined ||
+    incorrectas === undefined ||
+    tiempo === undefined
+  ) {
+    return res
+      .status(400)
+      .send(
+        "Todos los campos son necesarios: correo, correctas, incorrectas, tiempo"
+      );
+  }
+
+  try {
+    const idUsuario = await obtenerIdUsuario(correo);
+    if (!idUsuario) {
+      return res.status(401).json({ message: "Usuario no encontrado" });
+    }
+
+    let fechaRegistro = Timestamp.now();
+
+    const userRef = db.collection("usuarios").doc(idUsuario);
+    const statsRef = userRef.collection("avance_lenguaje_avanzado").doc();
+    await statsRef.set({
+      correctas,
+      incorrectas,
+      tiempo,
+      fechaRegistro,
+    });
+
+    res
+      .status(200)
+      .send("Avances almacenados correctamente a Lenguaje Avanzado");
   } catch (error) {
     console.error("Error actualizando el usuario:", error);
     res.status(500).send("Error interno del servidor");
@@ -129,18 +274,6 @@ export async function generarReporte(req, res) {
     doc.on("data", buffers.push.bind(buffers));
     doc.on("end", () => {
       let pdfData = Buffer.concat(buffers);
-
-      // Configurar Nodemailer
-      let transporter = nodemailer.createTransport({
-        // Configuramos el correo
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: process.env.MAIL,
-          pass: process.env.PASSWORD,
-        },
-      });
 
       let mailOptions = {
         from: {
@@ -182,7 +315,7 @@ export async function generarReporte(req, res) {
 
 export async function generarReporteSemanal(req, res) {
   try {
-    let email = req.body.correo;
+    let email = req.query.correo;
     if (!email) {
       return res
         .status(400)
