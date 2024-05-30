@@ -422,13 +422,6 @@ export async function generarReporteSemanal(req, res) {
             // data: snapshot.docs.map((doc) => doc.data()),
           };
         } else {
-          console.log(
-            collectionName,
-            " totCorrec: ",
-            totalIncorrecto,
-            " count ",
-            count
-          );
           const promedioCorrecto = count
             ? (totalCorrecto / count).toFixed(1)
             : 0;
