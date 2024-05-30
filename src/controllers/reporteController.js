@@ -166,12 +166,12 @@ export async function guardarMemoriaAvanzado(req, res) {
 }
 
 export async function guardarLenguajeBasico(req, res) {
-  let { correo, correctas, incorrectas, tiempo } = req.body;
+  let { correo, intentos, perdio, tiempo } = req.body;
 
   if (
     !correo ||
-    correctas === undefined ||
-    incorrectas === undefined ||
+    intentos === undefined ||
+    perdio === undefined ||
     tiempo === undefined
   ) {
     return res
@@ -192,8 +192,8 @@ export async function guardarLenguajeBasico(req, res) {
     const userRef = db.collection("usuarios").doc(idUsuario);
     const statsRef = userRef.collection("avance_lenguaje_basico").doc();
     await statsRef.set({
-      correctas,
-      incorrectas,
+      intentos,
+      perdio,
       tiempo,
       fechaRegistro,
     });
@@ -364,6 +364,7 @@ export async function generarReporteSemanal(req, res) {
         let count = 0;
         let fechaInicial = null;
         let fechaFinal = null;
+        let totalPerdio = 0;
 
         snapshot.docs.forEach((doc) => {
           const data = doc.data();
@@ -374,13 +375,23 @@ export async function generarReporteSemanal(req, res) {
 
             totalCorrecto += correcto;
             totalIncorrecto += incorrecto;
+            const tiempo = parseInt(data.tiempo) || 0;
+            totalTiempo += tiempo;
           } else {
-            const intentos = parseInt(data.intentos) || 0;
-            totalIntentos += intentos;
+            if (data.perdio == 1) {
+              totalPerdio += parseInt(data.perdio);
+              count--;
+              console.log("c1: ", count);
+            } else {
+              const intentos = parseInt(data.intentos) || 0;
+              totalIntentos += intentos;
+              const tiempo = parseInt(data.tiempo) || 0;
+              totalTiempo += tiempo;
+            }
           }
-          const tiempo = parseInt(data.tiempo) || 0;
-          totalTiempo += tiempo;
+
           count += 1;
+          console.log("c2: ", count);
 
           if (!fechaInicial || fechaRegistro < fechaInicial) {
             fechaInicial = fechaRegistro;
@@ -400,6 +411,18 @@ export async function generarReporteSemanal(req, res) {
           acc[collectionName] = {
             promedioIntentos,
             promedioTiempo,
+            fechaInicial,
+            fechaFinal,
+            // data: snapshot.docs.map((doc) => doc.data()),
+          };
+        } else if (collectionName == "avance_lenguaje_basico") {
+          const promedioIntentos = count
+            ? (totalIntentos / count).toFixed(1)
+            : 0;
+          acc[collectionName] = {
+            promedioIntentos,
+            promedioTiempo,
+            totalPerdio,
             fechaInicial,
             fechaFinal,
             // data: snapshot.docs.map((doc) => doc.data()),
