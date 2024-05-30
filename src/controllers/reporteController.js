@@ -166,46 +166,6 @@ export async function guardarMemoriaAvanzado(req, res) {
 }
 
 export async function guardarLenguajeBasico(req, res) {
-  let { correo, intentos, perdio, tiempo } = req.body;
-
-  if (
-    !correo ||
-    intentos === undefined ||
-    perdio === undefined ||
-    tiempo === undefined
-  ) {
-    return res
-      .status(400)
-      .send(
-        "Todos los campos son necesarios: correo, correctas, incorrectas, tiempo"
-      );
-  }
-
-  try {
-    const idUsuario = await obtenerIdUsuario(correo);
-    if (!idUsuario) {
-      return res.status(401).json({ message: "Usuario no encontrado" });
-    }
-
-    let fechaRegistro = Timestamp.now();
-
-    const userRef = db.collection("usuarios").doc(idUsuario);
-    const statsRef = userRef.collection("avance_lenguaje_basico").doc();
-    await statsRef.set({
-      intentos,
-      perdio,
-      tiempo,
-      fechaRegistro,
-    });
-
-    res.status(200).send("Avancez almacenados correctamente a Lenguaje Básico");
-  } catch (error) {
-    console.error("Error actualizando el usuario:", error);
-    res.status(500).send("Error interno del servidor");
-  }
-}
-
-export async function guardarLenguajeAvanzado(req, res) {
   let { correo, correctas, incorrectas, tiempo } = req.body;
 
   if (
@@ -230,10 +190,46 @@ export async function guardarLenguajeAvanzado(req, res) {
     let fechaRegistro = Timestamp.now();
 
     const userRef = db.collection("usuarios").doc(idUsuario);
-    const statsRef = userRef.collection("avance_lenguaje_avanzado").doc();
+    const statsRef = userRef.collection("avance_lenguaje_basico").doc();
     await statsRef.set({
       correctas,
       incorrectas,
+      tiempo,
+      fechaRegistro,
+    });
+
+    res.status(200).send("Avancez almacenados correctamente a Lenguaje Básico");
+  } catch (error) {
+    console.error("Error actualizando el usuario:", error);
+    res.status(500).send("Error interno del servidor");
+  }
+}
+
+export async function guardarLenguajeAvanzado(req, res) {
+  let { correo, intentos, perdio, tiempo } = req.body;
+
+  if (
+    !correo ||
+    intentos === undefined ||
+    perdio === undefined ||
+    tiempo === undefined
+  ) {
+    return res.status(400).send("Todos los campos son necesarios");
+  }
+
+  try {
+    const idUsuario = await obtenerIdUsuario(correo);
+    if (!idUsuario) {
+      return res.status(401).json({ message: "Usuario no encontrado" });
+    }
+
+    let fechaRegistro = Timestamp.now();
+
+    const userRef = db.collection("usuarios").doc(idUsuario);
+    const statsRef = userRef.collection("avance_lenguaje_avanzado").doc();
+    await statsRef.set({
+      intentos,
+      perdio,
       tiempo,
       fechaRegistro,
     });
@@ -369,7 +365,7 @@ export async function generarReporteSemanal(req, res) {
         snapshot.docs.forEach((doc) => {
           const data = doc.data();
           const fechaRegistro = data.fechaRegistro.toDate();
-          if (data.correctas) {
+          if (data.correctas >= 0) {
             const correcto = parseInt(data.correctas) || 0;
             const incorrecto = parseInt(data.incorrectas) || 0;
 
@@ -380,8 +376,7 @@ export async function generarReporteSemanal(req, res) {
           } else {
             if (data.perdio == 1) {
               totalPerdio += parseInt(data.perdio);
-              count--;
-              console.log("c1: ", count);
+              count = count - 1;
             } else {
               const intentos = parseInt(data.intentos) || 0;
               totalIntentos += intentos;
@@ -391,7 +386,6 @@ export async function generarReporteSemanal(req, res) {
           }
 
           count += 1;
-          console.log("c2: ", count);
 
           if (!fechaInicial || fechaRegistro < fechaInicial) {
             fechaInicial = fechaRegistro;
@@ -415,7 +409,7 @@ export async function generarReporteSemanal(req, res) {
             fechaFinal,
             // data: snapshot.docs.map((doc) => doc.data()),
           };
-        } else if (collectionName == "avance_lenguaje_basico") {
+        } else if (collectionName == "avance_lenguaje_avanzado") {
           const promedioIntentos = count
             ? (totalIntentos / count).toFixed(1)
             : 0;
@@ -428,7 +422,16 @@ export async function generarReporteSemanal(req, res) {
             // data: snapshot.docs.map((doc) => doc.data()),
           };
         } else {
-          const promedioCorrecto = count ? totalCorrecto / count.toFixed(1) : 0;
+          console.log(
+            collectionName,
+            " totCorrec: ",
+            totalIncorrecto,
+            " count ",
+            count
+          );
+          const promedioCorrecto = count
+            ? (totalCorrecto / count).toFixed(1)
+            : 0;
           const promedioIncorrecto = count
             ? (totalIncorrecto / count).toFixed(1)
             : 0;
